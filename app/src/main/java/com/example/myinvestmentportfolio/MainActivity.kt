@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,6 +67,7 @@ fun MyScreenContent(){
             horizontalAlignment= Alignment.CenterHorizontally,
         ) {
             PersonalAccount()
+
             MyPortfolio()
         }
     }
@@ -84,7 +88,7 @@ fun PersonalAccount(){
                     , modifier = Modifier.padding(bottom = 10.dp))
                 Text(text = "6:00 PM Friday, Oct 14, 2021"
                     , color = Color.White)
-                
+
             }
         }
 
@@ -111,7 +115,7 @@ fun PersonalAccount(){
                         Text(text = "Share", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
 
-                }   
+                }
             }
         }
     }
@@ -120,12 +124,48 @@ fun PersonalAccount(){
 
 @Composable
 fun MyPortfolio(){
+
     LazyRow(modifier = Modifier.padding(top = 40.dp)){
-        items(100){
-            Text(text = "Item: $it")
+        items(5){
+            CardPortfolio()
         }
     }
 }
+
+
+@Composable
+fun CardPortfolio(){
+    Card(modifier = Modifier
+        .size(280.dp, 190.dp)
+        .padding(8.dp)
+        , shape= RoundedCornerShape(20.dp)
+        , elevation = 10.dp) {
+        Box(){
+            Row(modifier = Modifier.padding(8.dp)
+                , verticalAlignment = Alignment.CenterVertically
+                , ) {
+                Image(painter = painterResource(id = R.drawable.ic_baseline_person_24),
+                    contentDescription = "", modifier = Modifier.size(40.dp))
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(text = "TICKET",fontWeight= FontWeight.ExtraBold
+                    ,textAlign = TextAlign.Justify)
+            }
+        }
+
+        Box(contentAlignment= Alignment.BottomStart){
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = "$47.99"
+                    , fontWeight = FontWeight.Bold
+                    , color = Color.Black
+                    , fontSize= 20.sp)
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(text = "The amount on the account",
+                    fontSize= 14.sp)
+            }
+        }
+    }
+}
+
 
 
 @Preview(showBackground = true)
@@ -136,3 +176,10 @@ fun DefaultPreview() {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun Preview() {
+    MyInvestmentPortfolioTheme {
+        CardPortfolio()
+    }
+}
