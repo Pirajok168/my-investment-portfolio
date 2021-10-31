@@ -3,14 +3,14 @@ package com.example.myinvestmentportfolio
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,14 +62,33 @@ fun MyScreenContent(){
             }
         )
     }) {
+        val state = rememberScrollState()
         Column(modifier= Modifier
             .fillMaxWidth()
-            .padding(top = 10.dp),
+            .verticalScroll(state,),
             horizontalAlignment= Alignment.CenterHorizontally,
         ) {
             PersonalAccount()
-
-            MyPortfolio()
+            Spacer(modifier = Modifier.size(50.dp))
+            Text(text = "My Portfolio"
+                , fontWeight = FontWeight.Bold
+                , fontSize = 20.sp
+                , textAlign = TextAlign.Left
+                , modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(8.dp))
+            Spacer(modifier = Modifier.size(20.dp))
+            ListOfShares(false)
+            Spacer(modifier = Modifier.size(20.dp))
+            Text(text = "Favorites"
+                , fontWeight = FontWeight.Bold
+                , fontSize = 20.sp
+                , textAlign = TextAlign.Left
+                , modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(8.dp))
+            Spacer(modifier = Modifier.size(10.dp))
+            ListOfShares(true)
         }
     }
 }
@@ -102,17 +122,33 @@ fun PersonalAccount(){
                 Row(verticalAlignment=Alignment.CenterVertically
                     ,horizontalArrangement=Arrangement.SpaceAround) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(painter = painterResource(id = R.drawable.ic_baseline_history_24)
-                            , contentDescription = ""
-                            , modifier= Modifier.size(40.dp))
+                        IconButton(onClick = { /*TODO*/ },
+                            modifier = Modifier.size(40.dp)) {
+                            Icon(painter = painterResource(id = R.drawable.ic_baseline_history_24)
+                                , contentDescription = ""
+                                , )
+                        }
                         Text(text = "History", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(painter = painterResource(id = R.drawable.ic_baseline_share_24)
-                            , contentDescription = ""
-                            , modifier= Modifier.size(40.dp))
+                        IconButton(onClick = { /*TODO*/ },
+                            modifier = Modifier.size(40.dp)) {
+                            Icon(painter = painterResource(id = R.drawable.ic_baseline_share_24)
+                                , contentDescription = ""
+                                , )
+                        }
                         Text(text = "Share", fontSize = 12.sp,textAlign = TextAlign.Center)
+                    }
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { /*TODO*/ },
+                            modifier = Modifier.size(40.dp)) {
+                            Icon(imageVector = Icons.Default.Add
+                                , contentDescription = ""
+                                , )
+                        }
+                        Text(text = "Add", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
 
                 }
@@ -123,18 +159,17 @@ fun PersonalAccount(){
 
 
 @Composable
-fun MyPortfolio(){
-
-    LazyRow(modifier = Modifier.padding(top = 40.dp)){
+fun ListOfShares(isFavorites:Boolean){
+    LazyRow{
         items(5){
-            CardPortfolio()
+            CardPortfolio(isFavorites)
         }
     }
 }
 
 
 @Composable
-fun CardPortfolio(){
+fun CardPortfolio(isFavorites:Boolean){
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
         .padding(8.dp)
@@ -149,6 +184,13 @@ fun CardPortfolio(){
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "TICKET",fontWeight= FontWeight.ExtraBold
                     ,textAlign = TextAlign.Justify)
+            }
+        }
+        if(isFavorites){
+            Box(contentAlignment = Alignment.TopEnd
+                , modifier = Modifier.padding(8.dp)){
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = ""
+                    , modifier = Modifier.size(20.dp))
             }
         }
 
@@ -176,10 +218,4 @@ fun DefaultPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    MyInvestmentPortfolioTheme {
-        CardPortfolio()
-    }
-}
+
