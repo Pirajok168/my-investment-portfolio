@@ -16,18 +16,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
+import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +36,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyInvestmentPortfolioTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    MyScreenContent()
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "profile"){
+                    composable("profile"){
+                        MyScreenContent(navController)
+                    }
+                    composable("search"){
+                        ScreenContentSearch()
+                    }
                 }
             }
         }
@@ -44,12 +51,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyScreenContent(){
+fun MyScreenContent(navController: NavHostController) {
+
     Scaffold(topBar={
         TopAppBar(title = {Text(text = "My Wallet")},
             actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "")
+                IconButton(onClick = {
+                    navController.navigate("search")
+                }) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                 }
             },
             backgroundColor= Color.White,
@@ -95,6 +105,7 @@ fun MyScreenContent(){
 
 @Composable
 fun PersonalAccount(){
+    val model: ActivityViewModel = viewModel()
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
             modifier = Modifier.size(360.dp, 160.dp),
@@ -106,7 +117,7 @@ fun PersonalAccount(){
                     , fontWeight = FontWeight.Bold
                     , color = Color.White, fontSize = 30.sp
                     , modifier = Modifier.padding(bottom = 10.dp))
-                Text(text = "6:00 PM Friday, Oct 14, 2021"
+                Text(text = model.result
                     , color = Color.White)
 
             }
@@ -214,7 +225,7 @@ fun CardPortfolio(isFavorites:Boolean){
 @Composable
 fun DefaultPreview() {
     MyInvestmentPortfolioTheme {
-        MyScreenContent()
+
     }
 }
 
