@@ -1,4 +1,4 @@
-package com.example.myinvestmentportfolio
+package com.example.myinvestmentportfolio.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,12 +27,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MyInvestmentPortfolioTheme {
                 // A surface container using the 'background' color from the theme

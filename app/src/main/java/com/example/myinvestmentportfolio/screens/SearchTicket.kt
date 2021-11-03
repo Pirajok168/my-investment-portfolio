@@ -1,66 +1,57 @@
-package com.example.myinvestmentportfolio
+package com.example.myinvestmentportfolio.screens
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myinvestmentportfolio.R
+import com.example.myinvestmentportfolio.dto.QuoteDDTO
+import com.example.myinvestmentportfolio.repositorys.Language
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.SearchViewModel
-import kotlinx.coroutines.launch
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import java.io.IOException
-import java.util.concurrent.Executors
 
-const val URL = "https://invest.yandex.ru/catalog/stock/"
+
 @Composable
-fun ScreenContentSearch(){
+fun ScreenContentSearch(model: SearchViewModel = viewModel()){
     Scaffold() {
-        ListOfShares()
+        var value by remember { mutableStateOf("") }
+        Column {
+            TextField(value = value, onValueChange = {
+                value = it
+                model.getFindQuotes(value, Language.Russian)
+            })
+            ListOfShares()    
+        }
+        
     }
 }
 
 @Composable
-fun ListOfShares(){
+fun ListOfShares(model: SearchViewModel = viewModel()){
+    //model.getFindQuotes("APPLE", Language.Russian)
+    val list by model.mutableLiveData.observeAsState(initial = listOf())
     LazyColumn(contentPadding= PaddingValues(8.dp)){
-        items(5){
-            CardShare()
+        items(list){
+            share ->
+            CardShare(share)
         }
     }
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun CardShare(model: SearchViewModel = viewModel()){
-    //val coroutineScope = rememberCoroutineScope()
-    var text: String? = null
-    val executor = Executors.newSingleThreadExecutor()
-
-
-    executor.execute {
-        try {
-            val doc: Document = Jsoup.connect(URL).get()
-            Log.d("tag", doc.title())
-        } catch (e: IOException) {
-            Log.d("tag", e.toString())
-        }
-
-    }
+fun CardShare(share: QuoteDDTO) {
 
     Card(modifier = Modifier
         .fillMaxWidth()
@@ -73,8 +64,11 @@ fun CardShare(model: SearchViewModel = viewModel()){
             Image(painter = painterResource(id = R.drawable.ic_baseline_person_24),
                 contentDescription = "",modifier = Modifier.padding(end=8.dp))
             Column {
-                Text(text = "неизвестно", fontWeight = FontWeight.Bold)
-                Text(text = "GAZP")
+                val description = replace(share.description)
+                val symbol = replace(share.symbol)
+
+                Text(text = description, fontWeight = FontWeight.Bold)
+                Text(text = symbol)
             }
 
         }
@@ -84,6 +78,12 @@ fun CardShare(model: SearchViewModel = viewModel()){
     }
 }
 
+fun replace(str: String): String{
+    var newStr = str
+    newStr = newStr.replace("<em>", "")
+    newStr = newStr.replace("</em>", "")
+    return newStr
+}
 
 
 @Preview(showBackground = true)

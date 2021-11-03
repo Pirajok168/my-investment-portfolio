@@ -2,7 +2,7 @@ package com.example.myinvestmentportfolio.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.myinvestmentportfolio.EventHandler
-import com.example.myinvestmentportfolio.Repository
+import com.example.myinvestmentportfolio.repositorys.Repository
 import java.text.SimpleDateFormat
 import java.util.*
 
