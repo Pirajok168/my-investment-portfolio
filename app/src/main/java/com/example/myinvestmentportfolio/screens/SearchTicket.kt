@@ -16,6 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myinvestmentportfolio.R
+import com.example.myinvestmentportfolio.Share
+import com.example.myinvestmentportfolio.dto.AnswerDTO
 import com.example.myinvestmentportfolio.dto.QuoteDDTO
 import com.example.myinvestmentportfolio.repositorys.Language
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
@@ -39,19 +41,25 @@ fun ScreenContentSearch(model: SearchViewModel = viewModel()){
 
 @Composable
 fun ListOfShares(model: SearchViewModel = viewModel()){
-    //model.getFindQuotes("APPLE", Language.Russian)
-    val list by model.mutableLiveData.observeAsState(initial = listOf())
+
+    val list by model.mutableLiveData.observeAsState(listOf())
+
     LazyColumn(contentPadding= PaddingValues(8.dp)){
         items(list){
-            share ->
+                share ->
             CardShare(share)
         }
+
+        /*items(list){
+            share ->
+            CardShare(share)
+        }*/
     }
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun CardShare(share: QuoteDDTO) {
+fun CardShare(share: Share) {
 
     Card(modifier = Modifier
         .fillMaxWidth()
@@ -64,16 +72,21 @@ fun CardShare(share: QuoteDDTO) {
             Image(painter = painterResource(id = R.drawable.ic_baseline_person_24),
                 contentDescription = "",modifier = Modifier.padding(end=8.dp))
             Column {
-                val description = replace(share.description)
-                val symbol = replace(share.symbol)
+                val description = replace(share.ticket)
+                val symbol = replace(share.ticket)
 
                 Text(text = description, fontWeight = FontWeight.Bold)
                 Text(text = symbol)
             }
-
         }
         Box(contentAlignment = Alignment.CenterEnd) {
-            Text(text = "3501.80₽")
+
+            var text = try {
+                share.price
+            }catch (e: Exception){
+                ""
+            }
+            Text(text = text)
         }
     }
 }
