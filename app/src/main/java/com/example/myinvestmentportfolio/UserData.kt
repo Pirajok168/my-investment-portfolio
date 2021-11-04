@@ -11,4 +11,5 @@ import java.util.*
 data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val ticket:  String
                     ,val description: String
-                    ,val logoId: String)
+                    ,val logoId: String
+                    ,val price: String)

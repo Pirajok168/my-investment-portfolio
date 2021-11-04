@@ -25,14 +25,16 @@ class SearchViewModel: ViewModel() {
     fun insert(share: QuoteDDTO) {
         viewModelScope.launch(Dispatchers.IO){
             val tag = replace(share.tag)
-            Log.d("tag", tag)
-            val logoId = repositoryConnection.getLogoId(replace(share.tag))
-            val test = logoId?.data?.get(0)?.d?.first().toString()
-            Log.d("tag", test)
+            val logoId = repositoryConnection.getLogoId(tag)
+            val logoIdText = logoId?.data?.get(0)?.d?.first().toString()
+            val price = repositoryConnection.collectDataForShare(tag)
+            val test = price?.data?.get(0)?.d?.get(1).toString()
+            Log.d("tag", test.toString())
             repositoryActivity.insert(UserData(
                 ticket = replace(share.symbol),
                 description = replace(share.description),
-                logoId = test
+                logoId = logoIdText,
+                price = test
             ))
         }
 

@@ -29,7 +29,7 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         return try {
             postJSONApi.collectDataForShare(
                 PostDTO(
-                columns=listOf("EMA10","close"),
+                columns=listOf("EMA10", "close"),
                 symbols= Symbols(
                     tickers= listOf(ticket),
                     query = Query(

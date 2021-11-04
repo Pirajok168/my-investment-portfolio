@@ -237,7 +237,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData){
 
         Box(contentAlignment= Alignment.BottomStart){
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = "$47.99"
+                Text(text = stock.price
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)
