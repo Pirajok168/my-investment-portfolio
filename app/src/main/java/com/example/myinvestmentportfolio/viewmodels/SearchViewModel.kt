@@ -22,19 +22,19 @@ class SearchViewModel: ViewModel() {
     private val _listLiveDataShare: MutableLiveData<List<Share>> = MutableLiveData()
 
     //private val _mutableLiveDataMap:MutableLiveData<Map<QuoteDDTO, AnswerDTO>> = MutableLiveData()
-    val mutableLiveData = _listLiveDataShare
+    val mutableLiveData = _mutableLiveDataList
 
 
-    init {
-        _mutableLiveDataList.observeForever {
-            collectDataForShare(it)
-        }
-    }
+
 
     fun getFindQuotes(findText: String, lang: Language){
         viewModelScope.launch(Dispatchers.IO) {
-            _mutableLiveDataList.postValue(repository.getFindQuotes(findText, lang))
+            var list = repository.getFindQuotes(findText, lang)
 
+            list = list.filter {
+                it.country=="US" || it.country=="RU"
+            }
+            _mutableLiveDataList.postValue(list)
         }
     }
 
