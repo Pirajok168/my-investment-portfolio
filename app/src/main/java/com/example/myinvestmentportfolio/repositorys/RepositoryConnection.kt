@@ -1,6 +1,7 @@
 package com.example.myinvestmentportfolio.repositorys
 
 import com.example.myinvestmentportfolio.dto.*
+import com.example.myinvestmentportfolio.holders.IdJSONApi
 import com.example.myinvestmentportfolio.holders.JSONSearchApi
 import com.example.myinvestmentportfolio.holders.PostJSONApi
 import java.lang.Exception
@@ -12,9 +13,10 @@ sealed class Language(val source: String){
 
 class RepositoryConnection private constructor(private val jsonSearchApi: JSONSearchApi
                                                 ,private val postJSONApi: PostJSONApi
+                                                ,private val idPostJSONApi: IdJSONApi
 ){
 
-    suspend fun getFindQuotes(findText: String, lang: Language): List<QuoteDDTO>{
+    suspend fun getFindQuotes(findText: String, lang: Language = Language.Russian): List<QuoteDDTO>{
         return try {
             jsonSearchApi.getFindQuotes(findText, lang.source)
         }catch (e: Exception){
@@ -34,7 +36,21 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
                         types= listOf()
                     )
                 )
-            )
+            ))
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getLogoId(ticket: String): LogoIdAnswer?{
+        return try {
+            idPostJSONApi.getLogoId(
+                PostLogoIdCompany(
+                    columns= listOf("logoid"),
+                    range= listOf(0, 1),
+                    symbols = SymbolsX(tickers = listOf(ticket))
+                )
             )
         }catch (e: Exception){
             e.printStackTrace()
@@ -46,7 +62,7 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         private var repository: RepositoryConnection? = null
         operator fun invoke(): RepositoryConnection{
             if (repository == null){
-                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi())
+                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi(), IdJSONApi())
             }
             return repository!!
         }

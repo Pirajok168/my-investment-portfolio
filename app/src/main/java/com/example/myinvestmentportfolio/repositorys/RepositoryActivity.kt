@@ -7,7 +7,7 @@ import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.database.AppDatabase
 import java.util.concurrent.Executors
 
-class Repository(context: Context) {
+class RepositoryActivity(context: Context) {
 
     private val database = Room.databaseBuilder(
         context,
@@ -20,18 +20,22 @@ class Repository(context: Context) {
 
     fun getAll(): LiveData<List<UserData>> = userDao.getAll()
 
-
+    fun insert(share: UserData){
+        executor.execute {
+            userDao.insert(share)
+        }
+    }
 
     companion object{
-        private var INSTANCE: Repository? = null
+        private var INSTANCE: RepositoryActivity? = null
 
         fun initialize(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = Repository(context)
+                INSTANCE = RepositoryActivity(context)
             }
         }
 
-        fun get(): Repository {
+        fun get(): RepositoryActivity {
             return INSTANCE ?:
             throw IllegalStateException("Repository must be initialized")
         }

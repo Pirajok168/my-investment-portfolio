@@ -1,11 +1,11 @@
 package com.example.myinvestmentportfolio.database
 
 import android.app.Application
-import com.example.myinvestmentportfolio.repositorys.Repository
+import com.example.myinvestmentportfolio.repositorys.RepositoryActivity
 
 class DataBaseInitializer: Application() {
     override fun onCreate() {
         super.onCreate()
-        Repository.initialize(this)
+        RepositoryActivity.initialize(this)
     }
 }

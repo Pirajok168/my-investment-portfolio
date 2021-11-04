@@ -9,6 +9,6 @@ import java.util.*
 
 @Entity
 data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
-                    var amountOfMoney:Int,
-                    val ticket: String,
-                    var amount: Int)
+                    val ticket:  String
+                    ,val description: String
+                    ,val logoId: String)

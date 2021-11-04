@@ -5,31 +5,50 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myinvestmentportfolio.Share
-import com.example.myinvestmentportfolio.dto.AnswerDTO
-import com.example.myinvestmentportfolio.dto.PostDTO
+import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.dto.QuoteDDTO
 import com.example.myinvestmentportfolio.repositorys.Language
+import com.example.myinvestmentportfolio.repositorys.RepositoryActivity
 import com.example.myinvestmentportfolio.repositorys.RepositoryConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.lang.reflect.Array
 
 
 class SearchViewModel: ViewModel() {
-    private val repository = RepositoryConnection.invoke()
+    private val repositoryConnection = RepositoryConnection.invoke()
+    private val repositoryActivity = RepositoryActivity.get()
     private val _mutableLiveDataList: MutableLiveData<List<QuoteDDTO>> = MutableLiveData()
     private val _listLiveDataShare: MutableLiveData<List<Share>> = MutableLiveData()
-
-    //private val _mutableLiveDataMap:MutableLiveData<Map<QuoteDDTO, AnswerDTO>> = MutableLiveData()
     val mutableLiveData = _mutableLiveDataList
 
+    fun insert(share: QuoteDDTO) {
+        viewModelScope.launch(Dispatchers.IO){
+            val tag = replace(share.tag)
+            Log.d("tag", tag)
+            val logoId = repositoryConnection.getLogoId(replace(share.tag))
+            val test = logoId?.data?.get(0)?.d?.first().toString()
+            Log.d("tag", test)
+            repositoryActivity.insert(UserData(
+                ticket = replace(share.symbol),
+                description = replace(share.description),
+                logoId = test
+            ))
+        }
 
 
+    }
+
+    private fun replace(str: String): String{
+        var newStr = str
+        newStr = newStr.replace("<em>", "")
+        newStr = newStr.replace("</em>", "")
+        return newStr
+    }
 
     fun getFindQuotes(findText: String, lang: Language){
         viewModelScope.launch(Dispatchers.IO) {
-            var list = repository.getFindQuotes(findText, lang)
+            var list = repositoryConnection.getFindQuotes(findText, lang)
 
             list = list.filter {
                 it.country=="US" || it.country=="RU"
@@ -47,7 +66,7 @@ class SearchViewModel: ViewModel() {
                 tag = tag.replace("<em>", "")
                 tag = tag.replace("</em>", "")
 
-                val data = repository.collectDataForShare(tag)
+                val data = repositoryConnection.collectDataForShare(tag)
                 try {
                     newList.add(
                         Share(
@@ -58,9 +77,6 @@ class SearchViewModel: ViewModel() {
                 }catch (e: Exception){
                     Log.d("tag", "data - ${data.toString()}. quoteDDTO - ${quoteDDTO.symbol}")
                 }
-
-
-
             }
             _listLiveDataShare.postValue(newList)
         }

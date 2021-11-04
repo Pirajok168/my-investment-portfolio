@@ -1,11 +1,13 @@
 package com.example.myinvestmentportfolio.screens
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,9 +15,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,7 +32,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
+import coil.decode.SvgDecoder
+import coil.transform.CircleCropTransformation
 import com.example.myinvestmentportfolio.R
+import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
 
@@ -45,6 +54,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("search"){
                         ScreenContentSearch()
+                    }
+                    composable("add"){
+                        ScreenContentAdd()
                     }
                 }
             }
@@ -80,7 +92,7 @@ fun MyScreenContent(navController: NavHostController) {
             .verticalScroll(state,),
             horizontalAlignment= Alignment.CenterHorizontally,
         ) {
-            PersonalAccount()
+            PersonalAccount(navController)
             Spacer(modifier = Modifier.size(50.dp))
             Text(text = "My Portfolio"
                 , fontWeight = FontWeight.Bold
@@ -106,7 +118,7 @@ fun MyScreenContent(navController: NavHostController) {
 }
 
 @Composable
-fun PersonalAccount(){
+fun PersonalAccount(navController: NavHostController){
     val model: ActivityViewModel = viewModel()
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
@@ -155,7 +167,7 @@ fun PersonalAccount(){
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { /*TODO*/ },
+                        IconButton(onClick = { navController.navigate("add") },
                             modifier = Modifier.size(40.dp)) {
                             Icon(imageVector = Icons.Default.Add
                                 , contentDescription = ""
@@ -172,17 +184,24 @@ fun PersonalAccount(){
 
 
 @Composable
-fun ListOfShares(isFavorites:Boolean){
+fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel()){
+    val list by model.dataStock.observeAsState(initial = listOf())
     LazyRow{
-        items(5){
-            CardPortfolio(isFavorites)
+        items(list){
+            stock ->
+            CardPortfolio(isFavorites, stock)
         }
     }
 }
 
 
 @Composable
-fun CardPortfolio(isFavorites:Boolean){
+fun CardPortfolio(isFavorites: Boolean, stock: UserData){
+    val context = LocalContext.current
+    val description = stock.description
+    val t = stock.logoId
+    val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
+    Log.d("tag", str)
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
         .padding(8.dp)
@@ -192,10 +211,19 @@ fun CardPortfolio(isFavorites:Boolean){
             Row(modifier = Modifier.padding(8.dp)
                 , verticalAlignment = Alignment.CenterVertically
                 , ) {
-                Image(painter = painterResource(id = R.drawable.ic_baseline_person_24),
-                    contentDescription = "", modifier = Modifier.size(40.dp))
+                Image(painter = rememberImagePainter(
+                    data = "https://developer.android.com/images/brand/Android_Robot.png",
+                    builder = {
+                        decoder(SvgDecoder(context))
+                        data(str)
+                        transformations(CircleCropTransformation())
+                    }
+                ),
+                    contentDescription = "",
+                    modifier = Modifier.size(40.dp))
                 Spacer(modifier = Modifier.size(10.dp))
-                Text(text = "TICKET",fontWeight= FontWeight.ExtraBold
+                Text(text = description
+                    ,fontWeight= FontWeight.ExtraBold
                     ,textAlign = TextAlign.Justify)
             }
         }

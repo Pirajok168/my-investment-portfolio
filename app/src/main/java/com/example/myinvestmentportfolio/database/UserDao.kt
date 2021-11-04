@@ -19,4 +19,7 @@ interface UserDao {
 
     @Query("SELECT * FROM userdata")
     fun getAll(): LiveData<List<UserData>>
+
+    @Insert
+    fun insert(share: UserData)
 }
