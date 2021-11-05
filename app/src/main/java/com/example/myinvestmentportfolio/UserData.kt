@@ -24,6 +24,7 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
             price.postValue(when (country){
             "US" ->{
                 val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
+
                 "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
             }
             "RU" -> {
