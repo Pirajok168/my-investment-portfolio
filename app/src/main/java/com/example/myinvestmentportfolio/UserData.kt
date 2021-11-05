@@ -17,23 +17,25 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     ,val country: String?
                     ,val tag: String
                     ,){
+    @Ignore private val repositoryConnection = RepositoryConnection.invoke()
     @Ignore var price: MutableLiveData<String> = MutableLiveData("")
     init {
-        val repositoryConnection = RepositoryConnection.invoke()
         GlobalScope.launch {
             price.postValue(when (country){
             "US" ->{
                 val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
-
-                "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+                val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                "$$price"
             }
             "RU" -> {
                 val postPrice = repositoryConnection.collectDataForShareRussia(tag)
-                "₽${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+                val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                "$$price"
             }
             else->{
                 val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
-                "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+                val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                "$$price"
             }
         })
         }
