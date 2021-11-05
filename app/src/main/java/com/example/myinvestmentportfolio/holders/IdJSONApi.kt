@@ -16,7 +16,11 @@ interface IdJSONApi {
 
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("america/scan")
-    suspend fun getLogoId(@Body dto: PostLogoIdCompany): LogoIdAnswer
+    suspend fun getLogoIdAmerica(@Body dto: PostLogoIdCompany): LogoIdAnswer
+
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @POST("/russia/scan")
+    suspend fun getLogoIdRussia(@Body dto: PostLogoIdCompany): LogoIdAnswer
 
     companion object{
         private var idPostJSONApi: IdJSONApi? = null

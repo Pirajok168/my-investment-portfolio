@@ -1,9 +1,10 @@
 package com.example.myinvestmentportfolio
 
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import android.util.Log
+import androidx.room.*
+import com.example.myinvestmentportfolio.repositorys.RepositoryConnection
+import com.example.myinvestmentportfolio.screens.Country
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -12,4 +13,24 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val ticket:  String
                     ,val description: String
                     ,val logoId: String
-                    ,val price: String)
+                    ,val country: String
+                    ,val tag: String
+                    , var price: String? = ""){
+    init {
+        val repositoryConnection = RepositoryConnection.invoke()
+        GlobalScope.launch {
+            price = when (country){
+                "US" ->{
+                    val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
+                    "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+                }
+                else -> {
+                    val postPrice = repositoryConnection.collectDataForShareRussia(tag)
+                    "₽${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+                }
+            }
+        }
+    }
+
+
+}

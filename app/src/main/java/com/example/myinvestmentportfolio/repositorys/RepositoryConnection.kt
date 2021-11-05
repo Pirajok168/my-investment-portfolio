@@ -4,6 +4,8 @@ import com.example.myinvestmentportfolio.dto.*
 import com.example.myinvestmentportfolio.holders.IdJSONApi
 import com.example.myinvestmentportfolio.holders.JSONSearchApi
 import com.example.myinvestmentportfolio.holders.PostJSONApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.lang.Exception
 
 sealed class Language(val source: String){
@@ -25,9 +27,12 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         }
     }
 
-    suspend fun collectDataForShare(ticket:String): AnswerDTO?{
+
+
+
+    suspend fun collectDataForShareAmerica(ticket:String): AnswerDTO?{
         return try {
-            postJSONApi.collectDataForShare(
+            postJSONApi.collectDataForShareAmerica(
                 PostDTO(
                 columns=listOf("EMA10", "close"),
                 symbols= Symbols(
@@ -43,9 +48,42 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         }
     }
 
-    suspend fun getLogoId(ticket: String): LogoIdAnswer?{
+    suspend fun collectDataForShareRussia(ticket:String): AnswerDTO?{
         return try {
-            idPostJSONApi.getLogoId(
+            postJSONApi.collectDataForShareRussia(
+                PostDTO(
+                    columns=listOf("EMA10", "close"),
+                    symbols= Symbols(
+                        tickers= listOf(ticket),
+                        query = Query(
+                            types= listOf()
+                        )
+                    )
+                ))
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getLogoIdAmerica(ticket: String): LogoIdAnswer?{
+        return try {
+            idPostJSONApi.getLogoIdAmerica(
+                PostLogoIdCompany(
+                    columns= listOf("logoid"),
+                    range= listOf(0, 1),
+                    symbols = SymbolsX(tickers = listOf(ticket))
+                )
+            )
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getLogoIdRussia(ticket: String): LogoIdAnswer?{
+        return try {
+            idPostJSONApi.getLogoIdRussia(
                 PostLogoIdCompany(
                     columns= listOf("logoid"),
                     range= listOf(0, 1),

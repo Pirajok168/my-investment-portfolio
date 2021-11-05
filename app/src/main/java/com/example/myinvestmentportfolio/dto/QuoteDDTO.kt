@@ -8,8 +8,10 @@ data class QuoteDDTO(
     val symbol: String,
     val type: String,
     val typespecs: List<String>,
-
     ){
     val tag: String
         get() = "$exchange:$symbol"
+
+    val tagHttp:String
+        get() = "$exchange-$symbol".uppercase()
 }

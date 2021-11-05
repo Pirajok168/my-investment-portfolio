@@ -25,16 +25,22 @@ class SearchViewModel: ViewModel() {
     fun insert(share: QuoteDDTO) {
         viewModelScope.launch(Dispatchers.IO){
             val tag = replace(share.tag)
-            val logoId = repositoryConnection.getLogoId(tag)
+            val tagHttp = replace(share.tagHttp)
+            val logoId = when (share.country){
+                "US" ->{
+                    repositoryConnection.getLogoIdAmerica(tag)
+                }
+                else ->{
+                    repositoryConnection.getLogoIdRussia(tag)
+                }
+            }
             val logoIdText = logoId?.data?.get(0)?.d?.first().toString()
-            val price = repositoryConnection.collectDataForShare(tag)
-            val test = price?.data?.get(0)?.d?.get(1).toString()
-            Log.d("tag", test.toString())
             repositoryActivity.insert(UserData(
                 ticket = replace(share.symbol),
                 description = replace(share.description),
                 logoId = logoIdText,
-                price = test
+                country = share.country,
+                tag = tag
             ))
         }
 
@@ -59,28 +65,5 @@ class SearchViewModel: ViewModel() {
         }
     }
 
-    private fun collectDataForShare(list: List<QuoteDDTO>) {
-        val newList: ArrayList<Share> = ArrayList()
-        viewModelScope.launch(Dispatchers.IO) {
-            list.forEach {
-                quoteDDTO ->
-                var tag = quoteDDTO.tag
-                tag = tag.replace("<em>", "")
-                tag = tag.replace("</em>", "")
 
-                val data = repositoryConnection.collectDataForShare(tag)
-                try {
-                    newList.add(
-                        Share(
-                            ticket = quoteDDTO.symbol,
-                            price = data?.data?.get(0).toString()
-                        )
-                    )
-                }catch (e: Exception){
-                    Log.d("tag", "data - ${data.toString()}. quoteDDTO - ${quoteDDTO.symbol}")
-                }
-            }
-            _listLiveDataShare.postValue(newList)
-        }
-    }
 }

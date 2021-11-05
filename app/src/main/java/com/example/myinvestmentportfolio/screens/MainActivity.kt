@@ -14,8 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +38,8 @@ import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +66,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyScreenContent(navController: NavHostController) {
+fun MyScreenContent(navController: NavHostController
+                    , model: ActivityViewModel = viewModel()) {
 
     Scaffold(topBar={
         TopAppBar(title = {Text(text = "My Wallet")},
@@ -92,7 +94,7 @@ fun MyScreenContent(navController: NavHostController) {
             .verticalScroll(state,),
             horizontalAlignment= Alignment.CenterHorizontally,
         ) {
-            PersonalAccount(navController)
+            PersonalAccount(navController,model)
             Spacer(modifier = Modifier.size(50.dp))
             Text(text = "My Portfolio"
                 , fontWeight = FontWeight.Bold
@@ -102,7 +104,7 @@ fun MyScreenContent(navController: NavHostController) {
                     .align(Alignment.Start)
                     .padding(8.dp))
             Spacer(modifier = Modifier.size(20.dp))
-            ListOfShares(false)
+            ListOfShares(false,model)
             Spacer(modifier = Modifier.size(20.dp))
             Text(text = "Favorites"
                 , fontWeight = FontWeight.Bold
@@ -112,14 +114,13 @@ fun MyScreenContent(navController: NavHostController) {
                     .align(Alignment.Start)
                     .padding(8.dp))
             Spacer(modifier = Modifier.size(10.dp))
-            ListOfShares(true)
+            ListOfShares(true,model)
         }
     }
 }
 
 @Composable
-fun PersonalAccount(navController: NavHostController){
-    val model: ActivityViewModel = viewModel()
+fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
             modifier = Modifier.size(360.dp, 160.dp),
@@ -196,15 +197,18 @@ fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel()){
 
 
 @Composable
-fun CardPortfolio(isFavorites: Boolean, stock: UserData){
+fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewModel = viewModel()){
     val context = LocalContext.current
     val description = stock.description
     val t = stock.logoId
     val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
-    Log.d("tag", str)
+
+
+
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
         .padding(8.dp)
+        .clickable {}
         , shape= RoundedCornerShape(20.dp)
         , elevation = 10.dp) {
         Box(){
@@ -224,7 +228,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData){
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = description
                     ,fontWeight= FontWeight.ExtraBold
-                    ,textAlign = TextAlign.Justify)
+                    ,textAlign = TextAlign.Justify, modifier = Modifier.width(140.dp))
             }
         }
         if(isFavorites){
@@ -237,7 +241,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData){
 
         Box(contentAlignment= Alignment.BottomStart){
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = stock.price
+                Text(text = "${stock.price}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)

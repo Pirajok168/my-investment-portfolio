@@ -15,7 +15,12 @@ interface PostJSONApi {
 
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("/america/scan")
-    suspend fun collectDataForShare(@Body dto: PostDTO): AnswerDTO
+    suspend fun collectDataForShareAmerica(@Body dto: PostDTO): AnswerDTO
+
+
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @POST("/russia/scan")
+    suspend fun collectDataForShareRussia(@Body dto: PostDTO): AnswerDTO
 
     companion object{
         private var postJSONApi: PostJSONApi? = null
