@@ -1,6 +1,7 @@
 package com.example.myinvestmentportfolio
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.example.myinvestmentportfolio.repositorys.RepositoryConnection
 import com.example.myinvestmentportfolio.screens.Country
@@ -15,20 +16,21 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     ,val logoId: String
                     ,val country: String
                     ,val tag: String
-                    , var price: String? = ""){
+                    ,){
+    @Ignore var price: MutableLiveData<String> = MutableLiveData("")
     init {
         val repositoryConnection = RepositoryConnection.invoke()
         GlobalScope.launch {
-            price = when (country){
-                "US" ->{
-                    val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
-                    "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
-                }
-                else -> {
-                    val postPrice = repositoryConnection.collectDataForShareRussia(tag)
-                    "₽${postPrice?.data?.get(0)?.d?.get(1).toString()}"
-                }
+            price.postValue(when (country){
+            "US" ->{
+                val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
+                "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
             }
+            else -> {
+                val postPrice = repositoryConnection.collectDataForShareRussia(tag)
+                "₽${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+            }
+        })
         }
     }
 

@@ -203,7 +203,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     val t = stock.logoId
     val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
 
-
+    val price by stock.price.observeAsState()
 
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
@@ -241,7 +241,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
 
         Box(contentAlignment= Alignment.BottomStart){
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = "${stock.price}"
+                Text(text = "${price}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)

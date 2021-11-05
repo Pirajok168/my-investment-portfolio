@@ -1,6 +1,7 @@
 package com.example.myinvestmentportfolio.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,12 +10,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,16 +35,23 @@ import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.SearchViewModel
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ScreenContentSearch(model: SearchViewModel = viewModel()){
     Scaffold() {
         var value by remember { mutableStateOf("") }
+        val focusRequester = FocusRequester()
+        val localFocusManager = LocalFocusManager.current
+        val keyboardController = LocalSoftwareKeyboardController.current
         Column {
-            TextField(value = value, onValueChange = {
-                value = it
-                model.getFindQuotes(value, Language.Russian)
-            })
-            ListOfShares()    
+           OutlinedTextField(singleLine=true,value = value, onValueChange = {
+               value = it
+               model.getFindQuotes(value, Language.Russian)
+            }, modifier = Modifier.fillMaxWidth()
+                   .padding(8.dp)
+                   .focusRequester(focusRequester))
+
+            ListOfShares()
         }
         
     }
