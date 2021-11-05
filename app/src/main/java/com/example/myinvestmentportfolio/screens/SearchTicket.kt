@@ -1,16 +1,12 @@
 package com.example.myinvestmentportfolio.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -20,40 +16,77 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
+import coil.decode.SvgDecoder
+import coil.transform.CircleCropTransformation
 import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.dto.QuoteDDTO
 import com.example.myinvestmentportfolio.repositorys.Language
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
+import com.example.myinvestmentportfolio.viewmodels.ChoiceSearch
 import com.example.myinvestmentportfolio.viewmodels.SearchViewModel
 
 
+@ExperimentalMaterialApi
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ScreenContentSearch(model: SearchViewModel = viewModel()){
-    Scaffold() {
+    Scaffold {
         var value by remember { mutableStateOf("") }
         val focusRequester = FocusRequester()
-        val localFocusManager = LocalFocusManager.current
-        val keyboardController = LocalSoftwareKeyboardController.current
-        Column {
-           OutlinedTextField(singleLine=true,value = value, onValueChange = {
-               value = it
-               model.getFindQuotes(value, Language.Russian)
-            }, modifier = Modifier.fillMaxWidth()
-                   .padding(8.dp)
-                   .focusRequester(focusRequester))
+        val choice by model.choice.observeAsState()
 
+        Column {
+            OutlinedTextField(singleLine=true,value = value, onValueChange = {
+                value = it
+                model.getFindQuotes(value, Language.Russian)
+            }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .focusRequester(focusRequester))
+
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+
+                Surface(
+                    onClick = { model.setStateSearch(ChoiceSearch.Stock) },
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(40),
+                    border = BorderStroke(1.dp, color = if(choice?.source=="stock")
+                        MaterialTheme.colors.primary else Color.Black)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically
+                        , horizontalArrangement = Arrangement.Center) {
+                        Text("Акции", color= Color.Black, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(8.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                Surface(
+                    onClick = { model.setStateSearch(ChoiceSearch.Cryptocurrency) },
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(40),
+                    border = BorderStroke(1.dp, color = if(choice?.source=="bitcoin,crypto")
+                        MaterialTheme.colors.primary else Color.Black)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically
+                        ,horizontalArrangement = Arrangement.Center) {
+                        Text("Криптовалюта", color= Color.Black, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(8.dp))
+                    }
+
+                }
+            }
             ListOfShares()
         }
-        
+
     }
 }
 
@@ -74,15 +107,13 @@ fun ListOfShares(model: SearchViewModel = viewModel()){
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun CardShare(share: QuoteDDTO, model: SearchViewModel) {
-    val image = when (share.country) {
-        "US" -> {
-            painterResource(id = R.drawable.us)
+    val context = LocalContext.current
+    val imageUrl = when (share.country == null) {
+        false -> {
+            "https://s3-symbol-logo.tradingview.com/country/${share.country}.svg"
         }
-        "RU" -> {
-            painterResource(id = R.drawable.ru)
-        }
-        else -> {
-            painterResource(id = R.drawable.ic_baseline_person_24)
+        true -> {
+            "https://s3-symbol-logo.tradingview.com/provider/${share.provider_id}.svg"
         }
     }
 
@@ -105,13 +136,17 @@ fun CardShare(share: QuoteDDTO, model: SearchViewModel) {
                 Text(text = share.exchange, modifier = Modifier.padding(8.dp))
 
                 Surface(modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(18.dp)
-                    ,shape = CircleShape
+                    .padding(end = 8.dp),
+                    shape = CircleShape
                     ,border = BorderStroke(1.dp, Color.Black)
                 ) {
-                    Image(painter = image,
-                        contentDescription = "")
+                    Image(painter = rememberImagePainter(
+                        data = R.drawable.ic_baseline_person_24,
+                        builder = {
+                            decoder(SvgDecoder(context))
+                            data(imageUrl)
+                        },
+                    ), contentDescription = "", modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -133,7 +168,7 @@ fun replace(str: String): String{
     return newStr
 }
 
-
+@ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview2() {

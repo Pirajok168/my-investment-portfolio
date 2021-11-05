@@ -22,6 +22,10 @@ interface IdJSONApi {
     @POST("/russia/scan")
     suspend fun getLogoIdRussia(@Body dto: PostLogoIdCompany): LogoIdAnswer
 
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @POST("/crypto/scan")
+    suspend fun getLogoIdCrypto(@Body dto: PostLogoIdCompany): LogoIdAnswer
+
     companion object{
         private var idPostJSONApi: IdJSONApi? = null
         operator fun invoke(): IdJSONApi{

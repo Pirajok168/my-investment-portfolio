@@ -14,26 +14,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-
+sealed class ChoiceSearch(val source: String){
+    object Stock : ChoiceSearch("stock")
+    object Cryptocurrency: ChoiceSearch("bitcoin,crypto")
+}
 class SearchViewModel: ViewModel() {
     private val repositoryConnection = RepositoryConnection.invoke()
     private val repositoryActivity = RepositoryActivity.get()
     private val _mutableLiveDataList: MutableLiveData<List<QuoteDDTO>> = MutableLiveData()
     private val _listLiveDataShare: MutableLiveData<List<Share>> = MutableLiveData()
+    private val _choiceSearchMutableLiveData: MutableLiveData<ChoiceSearch> = MutableLiveData(ChoiceSearch.Stock)
+    val choice = _choiceSearchMutableLiveData
     val mutableLiveData = _mutableLiveDataList
+
+    fun setStateSearch(state: ChoiceSearch){
+        _choiceSearchMutableLiveData.postValue(state)
+        _mutableLiveDataList.postValue(listOf())
+    }
 
     fun insert(share: QuoteDDTO) {
         viewModelScope.launch(Dispatchers.IO){
             val tag = replace(share.tag)
             val tagHttp = replace(share.tagHttp)
+            Log.e("tag", tag)
+            Log.e("tag", share.country ?: "crypto")
             val logoId = when (share.country){
                 "US" ->{
                     repositoryConnection.getLogoIdAmerica(tag)
                 }
-                else ->{
+                "RU" ->{
                     repositoryConnection.getLogoIdRussia(tag)
                 }
+                else ->{
+                    repositoryConnection.getLogoIdCrypto(tag)
+                }
             }
+            Log.e("tag", logoId.toString())
             val logoIdText = logoId?.data?.get(0)?.d?.first().toString()
             repositoryActivity.insert(UserData(
                 ticket = replace(share.symbol),
@@ -56,11 +72,16 @@ class SearchViewModel: ViewModel() {
 
     fun getFindQuotes(findText: String, lang: Language){
         viewModelScope.launch(Dispatchers.IO) {
-            var list = repositoryConnection.getFindQuotes(findText, lang)
+            val type = _choiceSearchMutableLiveData.value?.source!!
+            var list =  repositoryConnection.getFindQuotes(findText, lang, type)
+            //Log.d("tag", list.size.toString())
 
-            list = list.filter {
-                it.country=="US" || it.country=="RU"
+            if(type=="stock"){
+                list = list.filter {
+                    it.country=="US" || it.country=="RU"
+                }
             }
+
             _mutableLiveDataList.postValue(list)
         }
     }

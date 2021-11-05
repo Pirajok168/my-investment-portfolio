@@ -11,9 +11,10 @@ import retrofit2.http.Query
 private const val URL = "https://symbol-search.tradingview.com"
 interface JSONSearchApi {
 
-    @GET("/symbol_search/?exchange=&hl=1&type=stock&domain=production")
+    @GET("/symbol_search/?exchange=&hl=1&domain=production")
     suspend fun getFindQuotes(@Query("text") text: String
-                              , @Query("lang") lang: String): List<QuoteDDTO>
+                              , @Query("lang",) lang: String
+                              , @Query("type") type: String): List<QuoteDDTO>
 
     companion object{
         private var jsonPlaceHolderApi: JSONSearchApi? = null

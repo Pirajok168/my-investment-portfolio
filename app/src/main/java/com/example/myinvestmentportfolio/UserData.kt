@@ -14,7 +14,7 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val ticket:  String
                     ,val description: String
                     ,val logoId: String
-                    ,val country: String
+                    ,val country: String?
                     ,val tag: String
                     ,){
     @Ignore var price: MutableLiveData<String> = MutableLiveData("")
@@ -26,9 +26,13 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                 val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
                 "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
             }
-            else -> {
+            "RU" -> {
                 val postPrice = repositoryConnection.collectDataForShareRussia(tag)
                 "₽${postPrice?.data?.get(0)?.d?.get(1).toString()}"
+            }
+            else->{
+                val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
+                "$${postPrice?.data?.get(0)?.d?.get(1).toString()}"
             }
         })
         }

@@ -18,16 +18,32 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
                                                 ,private val idPostJSONApi: IdJSONApi
 ){
 
-    suspend fun getFindQuotes(findText: String, lang: Language = Language.Russian): List<QuoteDDTO>{
+    suspend fun getFindQuotes(findText: String, lang: Language = Language.Russian,type: String): List<QuoteDDTO>{
         return try {
-            jsonSearchApi.getFindQuotes(findText, lang.source)
+            jsonSearchApi.getFindQuotes(findText, lang.source,type)
         }catch (e: Exception){
             e.printStackTrace()
             listOf()
         }
     }
 
-
+    suspend fun collectDataForShareCrypto(ticket:String): AnswerDTO?{
+        return try {
+            postJSONApi.collectDataForShareCrypto(
+                PostDTO(
+                    columns=listOf("EMA10", "close"),
+                    symbols= Symbols(
+                        tickers= listOf(ticket),
+                        query = Query(
+                            types= listOf()
+                        )
+                    )
+                ))
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
 
 
     suspend fun collectDataForShareAmerica(ticket:String): AnswerDTO?{
@@ -66,6 +82,8 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         }
     }
 
+
+
     suspend fun getLogoIdAmerica(ticket: String): LogoIdAnswer?{
         return try {
             idPostJSONApi.getLogoIdAmerica(
@@ -86,6 +104,21 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
             idPostJSONApi.getLogoIdRussia(
                 PostLogoIdCompany(
                     columns= listOf("logoid"),
+                    range= listOf(0, 1),
+                    symbols = SymbolsX(tickers = listOf(ticket))
+                )
+            )
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getLogoIdCrypto(ticket: String): LogoIdAnswer?{
+        return try {
+            idPostJSONApi.getLogoIdCrypto(
+                PostLogoIdCompany(
+                    columns= listOf("base_currency_logoid","currency_logoid"),
                     range= listOf(0, 1),
                     symbols = SymbolsX(tickers = listOf(ticket))
                 )

@@ -40,7 +40,7 @@ import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
 
 
-
+@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

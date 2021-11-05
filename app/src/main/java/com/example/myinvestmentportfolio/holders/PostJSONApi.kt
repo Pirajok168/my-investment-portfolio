@@ -22,6 +22,10 @@ interface PostJSONApi {
     @POST("/russia/scan")
     suspend fun collectDataForShareRussia(@Body dto: PostDTO): AnswerDTO
 
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @POST("/crypto/scan")
+    suspend fun collectDataForShareCrypto(@Body dto: PostDTO): AnswerDTO
+
     companion object{
         private var postJSONApi: PostJSONApi? = null
         operator fun invoke(): PostJSONApi{
