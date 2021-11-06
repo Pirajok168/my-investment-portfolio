@@ -1,7 +1,6 @@
 package com.example.myinvestmentportfolio.screens
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
@@ -28,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.rememberImagePainter
 import coil.decode.SvgDecoder
 import coil.transform.CircleCropTransformation
@@ -38,6 +39,7 @@ import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
+import com.example.myinvestmentportfolio.viewmodels.ViewAsset
 
 
 @ExperimentalMaterialApi
@@ -54,10 +56,21 @@ class MainActivity : ComponentActivity() {
                         MyScreenContent(navController)
                     }
                     composable("search"){
-                        ScreenContentSearch()
+                        ScreenContentSearch(navController = navController)
                     }
-                    composable("add"){
-                        ScreenContentAdd()
+                    composable("viewAsset?country={country}&tag={tag}&ticket={ticket}" +
+                            "&description={description}"
+                        ,arguments = listOf(
+                              navArgument("country"){ type = NavType.StringType }
+                            , navArgument("tag") {type = NavType.StringType}
+                            , navArgument("ticket") {type = NavType.StringType}
+                            , navArgument("description") {type = NavType.StringType}
+                        )){
+                            backStackEntry ->
+                        ViewAsset(backStackEntry.arguments?.getString("country")!!
+                            , backStackEntry.arguments?.getString("tag")!!
+                            , backStackEntry.arguments?.getString("ticket")!!
+                            , backStackEntry.arguments?.getString("description")!!)
                     }
                 }
             }
@@ -106,15 +119,16 @@ fun MyScreenContent(navController: NavHostController
             Spacer(modifier = Modifier.size(20.dp))
             ListOfShares(false,model)
             Spacer(modifier = Modifier.size(20.dp))
-            Text(text = "Favorites"
+
+        /*Text(text = "Favorites"
                 , fontWeight = FontWeight.Bold
                 , fontSize = 20.sp
                 , textAlign = TextAlign.Left
                 , modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(8.dp))
-            Spacer(modifier = Modifier.size(10.dp))
-            ListOfShares(true,model)
+                    .padding(8.dp))*/
+            /*Spacer(modifier = Modifier.size(10.dp))
+            ListOfShares(true,model)*/
         }
     }
 }

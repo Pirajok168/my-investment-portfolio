@@ -3,15 +3,27 @@ package com.example.myinvestmentportfolio.dto
 data class QuoteDDTO(
     val country: String?,
     val description: String,
-    val exchange: String,
+    var exchange: String,
     val provider_id: String,
-    val symbol: String,
+    var symbol: String,
     val type: String,
     val typespecs: List<String>,
     ){
+
+
     val tag: String
-        get() = "$exchange:$symbol"
+        get() = "${replace(exchange)}:${replace(symbol)}"
+
 
     val tagHttp:String
-        get() = "$exchange-$symbol".uppercase()
+        get() = "${replace(exchange)}-${replace(symbol)}".uppercase()
+
+
+    private fun replace(str: String): String{
+        var newStr = str
+        newStr = newStr.replace("<em>", "")
+        newStr = newStr.replace("</em>", "")
+        return newStr
+    }
+
 }

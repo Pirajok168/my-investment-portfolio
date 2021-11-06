@@ -22,24 +22,10 @@ import kotlin.math.log
 
 class ActivityViewModel: ViewModel(), EventHandler<ChoiceEvent> {
     private val repository = RepositoryActivity.get()
-    private val repositoryConnection = RepositoryConnection()
     private val _realData = repository.getAll()
     val dataStock = _realData
     var price: MutableLiveData<String> = MutableLiveData("")
 
-    fun getPrice(stock: UserData){
-        viewModelScope.launch(Dispatchers.IO){
-            val postPrice = when (stock.country){
-                "US" ->{
-                    repositoryConnection.collectDataForShareAmerica(stock.tag)
-                }
-                else -> {
-                     repositoryConnection.collectDataForShareRussia(stock.tag)
-                }
-            }
-            price.postValue(postPrice?.data?.get(0)?.d?.get(1).toString())
-        }
-    }
 
 
     val result: String by lazy {

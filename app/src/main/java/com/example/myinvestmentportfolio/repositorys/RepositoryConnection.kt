@@ -18,7 +18,9 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
                                                 ,private val idPostJSONApi: IdJSONApi
 ){
 
-    suspend fun getFindQuotes(findText: String, lang: Language = Language.Russian,type: String): List<QuoteDDTO>{
+    suspend fun getFindQuotes(findText: String
+                              , lang: Language = Language.Russian
+                              , type: String): List<QuoteDDTO>{
         return try {
             jsonSearchApi.getFindQuotes(findText, lang.source,type)
         }catch (e: Exception){

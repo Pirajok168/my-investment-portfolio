@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.decode.SvgDecoder
@@ -37,7 +38,8 @@ import com.example.myinvestmentportfolio.viewmodels.SearchViewModel
 @ExperimentalMaterialApi
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ScreenContentSearch(model: SearchViewModel = viewModel()){
+fun ScreenContentSearch(model: SearchViewModel = viewModel()
+                        ,navController: NavHostController){
     Scaffold {
         var value by remember { mutableStateOf("") }
         val focusRequester = FocusRequester()
@@ -84,21 +86,21 @@ fun ScreenContentSearch(model: SearchViewModel = viewModel()){
 
                 }
             }
-            ListOfShares()
+            ListOfShares(navController=navController)
         }
 
     }
 }
 
 @Composable
-fun ListOfShares(model: SearchViewModel = viewModel()){
+fun ListOfShares(model: SearchViewModel = viewModel(),navController: NavHostController){
 
     val list by model.mutableLiveData.observeAsState(listOf())
 
     LazyColumn(contentPadding= PaddingValues(8.dp)){
         items(list){
                 share ->
-            CardShare(share,model)
+            CardShare(share,model,navController=navController)
         }
     }
 }
@@ -106,7 +108,7 @@ fun ListOfShares(model: SearchViewModel = viewModel()){
 @OptIn(ExperimentalCoilApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun CardShare(share: QuoteDDTO, model: SearchViewModel) {
+fun CardShare(share: QuoteDDTO, model: SearchViewModel,navController: NavHostController) {
     val context = LocalContext.current
     val imageUrl = when (share.country == null) {
         false -> {
@@ -117,7 +119,8 @@ fun CardShare(share: QuoteDDTO, model: SearchViewModel) {
         }
     }
 
-    Column(modifier = Modifier.clickable(onClick = {addStock(share, model)})) {
+    Column(modifier = Modifier.clickable(onClick = {navController.navigate("viewAsset?country=${share.country}"
+            + "&tag=${share.tag}&ticket=${share.symbol}&description=${share.description}")})) {
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
             , modifier = Modifier
@@ -168,16 +171,5 @@ fun replace(str: String): String{
     return newStr
 }
 
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview2() {
-    MyInvestmentPortfolioTheme {
-        ScreenContentSearch()
-    }
-}
 
-sealed class Country(val source: String){
-    object America: Country("https://s3-symbol-logo.tradingview.com/country/US.svg")
-    object Russia: Country("https://s3-symbol-logo.tradingview.com/country/RU.svg")
-}
+

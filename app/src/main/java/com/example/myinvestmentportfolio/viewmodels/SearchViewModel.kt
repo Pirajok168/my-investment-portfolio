@@ -22,7 +22,7 @@ class SearchViewModel: ViewModel() {
     private val repositoryConnection = RepositoryConnection.invoke()
     private val repositoryActivity = RepositoryActivity.get()
     private val _mutableLiveDataList: MutableLiveData<List<QuoteDDTO>> = MutableLiveData()
-    private val _listLiveDataShare: MutableLiveData<List<Share>> = MutableLiveData()
+
     private val _choiceSearchMutableLiveData: MutableLiveData<ChoiceSearch> = MutableLiveData(ChoiceSearch.Stock)
     val choice = _choiceSearchMutableLiveData
     val mutableLiveData = _mutableLiveDataList
@@ -34,8 +34,7 @@ class SearchViewModel: ViewModel() {
 
     fun insert(share: QuoteDDTO) {
         viewModelScope.launch(Dispatchers.IO){
-            val tag = replace(share.tag)
-            val tagHttp = replace(share.tagHttp)
+            val tag = share.tag
             Log.e("tag", tag)
             Log.e("tag", share.country ?: "crypto")
             val logoId = when (share.country){
@@ -59,8 +58,6 @@ class SearchViewModel: ViewModel() {
                 tag = tag
             ))
         }
-
-
     }
 
     private fun replace(str: String): String{
