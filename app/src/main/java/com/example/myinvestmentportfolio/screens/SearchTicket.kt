@@ -164,7 +164,7 @@ fun addStock(share: QuoteDDTO, model: SearchViewModel) {
     model.insert(share)
 }
 
-fun replace(str: String): String{
+private fun replace(str: String): String{
     var newStr = str
     newStr = newStr.replace("<em>", "")
     newStr = newStr.replace("</em>", "")

@@ -9,12 +9,10 @@ import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.*
 import java.util.*
 
-open class Test{
-    var test: String?  = null
-}
 
 
-@Entity(ignoredColumns = ["test"])
+
+@Entity
 data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val ticket:  String
                     , val description: String
@@ -22,35 +20,36 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     , val country: String?
                     , val tag: String
                     , var count: Int = 0
-                    , var prices: String? = null): Test(){
+                    , var firstPrices: Double = 0.0){
     @Ignore private val repositoryConnection = RepositoryConnection.invoke()
-    @Ignore var price: MutableLiveData<String> = MutableLiveData("")
-    @Ignore var testPrice = price.value
+    @Ignore var nowPrice: MutableLiveData<Double> = MutableLiveData(0.0)
     init {
-        if(prices!=null){
-            GlobalScope.launch {
-                price.postValue(when (country){
+
+        GlobalScope.launch {
+
+            nowPrice.postValue(when (country){
                 "US" ->{
                     val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
+                    val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "price - $price. post - $postPrice")
-                    "$$price"
+                    price
                 }
                 "RU" -> {
                     val postPrice = repositoryConnection.collectDataForShareRussia(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
+                    val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "price - $price. post - $postPrice")
-                    "₽$price"
+                    price
                 }
                 else->{
                     val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
+                    val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "tag - $tag. price - $price. post - $postPrice")
-                    "$$price"
+                    price
                 }
-                })
-            }
+            })
+
         }
+
     }
 
 

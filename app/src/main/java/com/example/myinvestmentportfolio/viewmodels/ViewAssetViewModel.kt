@@ -25,11 +25,7 @@ class ViewAssetViewModel: ViewModel() {
     private val repositoryConnection = RepositoryConnection()
     private val repositoryActivity = RepositoryActivity.get()
     private val _assetLiveData: MutableLiveData<UserData> = MutableLiveData()
-
-
     val assetLiveData = _assetLiveData
-
-
 
     fun find(tag: String, country: String, ticket: String, description:String){
         viewModelScope.launch (Dispatchers.IO) {
@@ -51,18 +47,18 @@ class ViewAssetViewModel: ViewModel() {
                 when (country){
                     "US" ->{
                         val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
-                        val price = postPrice?.data?.get(0)?.d?.get(1).toString()
-                        "$$price"
+                        val price = postPrice?.data?.get(0)?.d?.get(1)
+                        price
                     }
                     "RU" -> {
                         val postPrice = repositoryConnection.collectDataForShareRussia(tag)
-                        val price = postPrice?.data?.get(0)?.d?.get(1).toString()
-                        "₽$price"
+                        val price = postPrice?.data?.get(0)?.d?.get(1)
+                        price
                     }
                     else->{
                         val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
-                        val price = postPrice?.data?.get(0)?.d?.get(1).toString()
-                        "$$price"
+                        val price = postPrice?.data?.get(0)?.d?.get(1)
+                        price
                     }
                 }
             }
@@ -76,7 +72,7 @@ class ViewAssetViewModel: ViewModel() {
                 logoId = logoIdText,
                 country = country,
                 tag = tag,
-                prices = price.await()
+                firstPrices = price.await()!!
             )
             _assetLiveData.postValue(asset)
         }
@@ -102,7 +98,6 @@ class ViewAssetViewModel: ViewModel() {
             }else{
                 Log.d("tags", "запись не найдена")
                 try {
-                    asset.prices = ""
                     asset.count = 1
                     repositoryActivity.insert(asset)
                 }catch (e: Exception){

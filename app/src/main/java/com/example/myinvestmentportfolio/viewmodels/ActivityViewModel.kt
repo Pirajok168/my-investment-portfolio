@@ -24,8 +24,11 @@ class ActivityViewModel: ViewModel(), EventHandler<ChoiceEvent> {
     private val repository = RepositoryActivity.get()
     private val _realData = repository.getAll()
     val dataStock = _realData
-    var price: MutableLiveData<String> = MutableLiveData("")
+    var price: MutableLiveData<Double> = MutableLiveData(0.0)
 
+     fun setPrice(p: Double){
+        price.postValue(p)
+    }
 
 
     val result: String by lazy {

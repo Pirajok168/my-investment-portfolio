@@ -42,7 +42,10 @@ import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
-import com.example.myinvestmentportfolio.viewmodels.ViewAsset
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import okhttp3.Dispatcher
 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -107,10 +110,11 @@ fun MyScreenContent(navController: NavHostController
         )
     }) {
         val state = rememberScrollState()
-        Column(modifier= Modifier
-            .fillMaxWidth()
-            .verticalScroll(state,),
-            horizontalAlignment= Alignment.CenterHorizontally,
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(state),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             PersonalAccount(navController,model)
             Spacer(modifier = Modifier.size(50.dp))
@@ -125,15 +129,6 @@ fun MyScreenContent(navController: NavHostController
             ListOfShares(false, model, navController)
             Spacer(modifier = Modifier.size(20.dp))
 
-        /*Text(text = "Favorites"
-                , fontWeight = FontWeight.Bold
-                , fontSize = 20.sp
-                , textAlign = TextAlign.Left
-                , modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(8.dp))*/
-            /*Spacer(modifier = Modifier.size(10.dp))
-            ListOfShares(true,model)*/
         }
     }
 }
@@ -142,6 +137,8 @@ fun MyScreenContent(navController: NavHostController
 @ExperimentalAnimationApi
 @Composable
 fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
+
+    val price by model.price.observeAsState()
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
             modifier = Modifier.size(360.dp, 160.dp),
@@ -149,7 +146,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
         ) {
             Column(horizontalAlignment= Alignment.CenterHorizontally
                 , modifier = Modifier.padding(top=35.dp)) {
-                Text(text = "US$5,657.60"
+                Text(text = price.toString()
                     , fontWeight = FontWeight.Bold
                     , color = Color.White, fontSize = 30.sp
                     , modifier = Modifier.padding(bottom = 10.dp))
@@ -171,9 +168,10 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(onClick = { /*TODO*/ },
                             modifier = Modifier.size(40.dp)) {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_history_24)
-                                , contentDescription = ""
-                                , )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_history_24),
+                                contentDescription = "",
+                            )
                         }
                         Text(text = "History", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
@@ -181,9 +179,10 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(onClick = { /*TODO*/ },
                             modifier = Modifier.size(40.dp)) {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_share_24)
-                                , contentDescription = ""
-                                , )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_share_24),
+                                contentDescription = "",
+                            )
                         }
                         Text(text = "Share", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
@@ -191,9 +190,10 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(onClick = { navController.navigate("add") },
                             modifier = Modifier.size(40.dp)) {
-                            Icon(imageVector = Icons.Default.Add
-                                , contentDescription = ""
-                                , )
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "",
+                            )
                         }
                         Text(text = "Add", fontSize = 12.sp,textAlign = TextAlign.Center)
                     }
@@ -227,7 +227,19 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     Log.e("tags", t)
     val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
 
-    val price by stock.price.observeAsState()
+    val nowPrice by stock.nowPrice.observeAsState()
+
+    val currency = when(stock.country){
+        "US" ->{
+            "$"
+        }
+        "RU" ->{
+            "₽"
+        }
+        else ->{
+            "$"
+        }
+    }
 
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
@@ -241,9 +253,10 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
         , shape= RoundedCornerShape(20.dp)
         , elevation = 10.dp) {
         Box(){
-            Row(modifier = Modifier.padding(8.dp)
-                , verticalAlignment = Alignment.CenterVertically
-                , ) {
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 AnimatedVisibility(visible = t != "") {
                     Image(painter = rememberImagePainter(
                         data = "https://developer.android.com/images/brand/Android_Robot.png",
@@ -274,16 +287,33 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
 
         Box(contentAlignment= Alignment.BottomStart, modifier=Modifier.padding(16.dp)){
             Column {
-                Text(text = "${price}"
+                Text(text = "${nowPrice!! * stock.count}${currency}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)
+                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0) + "%" ,color = Color.Green)
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "${stock.count} в портфели ",
                     fontSize= 14.sp, fontWeight = FontWeight.Medium)
             }
         }
+
+        Box(contentAlignment= Alignment.BottomEnd, modifier=Modifier.padding(16.dp)){
+            Column {
+                Text(text = "${nowPrice}${currency}"
+                    , fontWeight = FontWeight.Bold
+                    , color = Color.Black
+                    , fontSize= 20.sp)
+
+            }
+        }
     }
+}
+
+fun procent(first: Double, now: Double ): String{
+    val q = now - first
+    val x = 100 * q / first
+    return String.format("%.2f", x)
 }
 
 
