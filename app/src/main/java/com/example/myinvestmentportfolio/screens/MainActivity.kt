@@ -1,8 +1,10 @@
 package com.example.myinvestmentportfolio.screens
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -79,6 +81,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+@ExperimentalAnimationApi
 @Composable
 fun MyScreenContent(navController: NavHostController
                     , model: ActivityViewModel = viewModel()) {
@@ -134,6 +138,8 @@ fun MyScreenContent(navController: NavHostController
     }
 }
 
+
+@ExperimentalAnimationApi
 @Composable
 fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
@@ -199,6 +205,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
 }
 
 
+@ExperimentalAnimationApi
 @Composable
 fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel(), navController: NavHostController){
     val list by model.dataStock.observeAsState(initial = listOf())
@@ -211,11 +218,13 @@ fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel(), na
 }
 
 
+@ExperimentalAnimationApi
 @Composable
 fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewModel = viewModel(),navController: NavHostController){
     val context = LocalContext.current
     val description = stock.description
     val t = stock.logoId
+    Log.e("tags", t)
     val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
 
     val price by stock.price.observeAsState()
@@ -224,8 +233,10 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
         .size(280.dp, 190.dp)
         .padding(8.dp)
         .clickable {
-            navController.navigate("viewAsset?country=${stock.country}"
-                    + "&tag=${stock.tag}&ticket=${stock.ticket}&description=${description}")
+            navController.navigate(
+                "viewAsset?country=${stock.country}"
+                        + "&tag=${stock.tag}&ticket=${stock.ticket}&description=${description}"
+            )
         }
         , shape= RoundedCornerShape(20.dp)
         , elevation = 10.dp) {
@@ -233,16 +244,20 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
             Row(modifier = Modifier.padding(8.dp)
                 , verticalAlignment = Alignment.CenterVertically
                 , ) {
-                Image(painter = rememberImagePainter(
-                    data = "https://developer.android.com/images/brand/Android_Robot.png",
-                    builder = {
-                        decoder(SvgDecoder(context))
-                        data(str)
-                        transformations(CircleCropTransformation())
-                    }
-                ),
-                    contentDescription = "",
-                    modifier = Modifier.size(40.dp))
+                AnimatedVisibility(visible = t != "") {
+                    Image(painter = rememberImagePainter(
+                        data = "https://developer.android.com/images/brand/Android_Robot.png",
+                        builder = {
+                            decoder(SvgDecoder(context))
+                            data(str)
+                            transformations(CircleCropTransformation())
+                        }
+                    ),
+                        contentDescription = "",
+                        modifier = Modifier.size(40.dp))
+                }
+
+
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = description
                     ,fontWeight= FontWeight.ExtraBold
@@ -257,15 +272,15 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
             }
         }
 
-        Box(contentAlignment= Alignment.BottomStart){
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = "$price"
+        Box(contentAlignment= Alignment.BottomStart, modifier=Modifier.padding(16.dp)){
+            Column {
+                Text(text = "${price}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)
                 Spacer(modifier = Modifier.size(10.dp))
-                Text(text = "The amount on the account",
-                    fontSize= 14.sp)
+                Text(text = "${stock.count} в портфели ",
+                    fontSize= 14.sp, fontWeight = FontWeight.Medium)
             }
         }
     }

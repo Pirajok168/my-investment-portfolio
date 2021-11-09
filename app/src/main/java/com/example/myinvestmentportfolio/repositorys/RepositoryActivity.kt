@@ -20,10 +20,12 @@ class RepositoryActivity(context: Context) {
 
     fun getAll(): LiveData<List<UserData>> = userDao.getAll()
 
+    fun getAsset(ticket: String): UserData? = userDao.getAsset(ticket)
+
+    fun update(asset: UserData) = userDao.update(asset)
+
     fun insert(share: UserData){
-        executor.execute {
-            userDao.insert(share)
-        }
+        userDao.insert(share)
     }
 
     companion object{

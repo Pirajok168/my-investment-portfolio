@@ -1,10 +1,7 @@
 package com.example.myinvestmentportfolio.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.myinvestmentportfolio.UserData
 
 
@@ -22,4 +19,11 @@ interface UserDao {
 
     @Insert
     fun insert(share: UserData)
+
+    @Query("SELECT * FROM userdata WHERE ticket =(:ticket)")
+    fun getAsset(ticket: String): UserData?
+
+    @Update
+    fun update(share: UserData)
+
 }

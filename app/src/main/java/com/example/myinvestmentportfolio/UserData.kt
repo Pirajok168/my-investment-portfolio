@@ -17,11 +17,12 @@ open class Test{
 @Entity(ignoredColumns = ["test"])
 data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val ticket:  String
-                    ,val description: String
-                    ,val logoId: String
-                    ,val country: String?
-                    ,val tag: String
-                    ,var prices: String? = null): Test(){
+                    , val description: String
+                    , val logoId: String
+                    , val country: String?
+                    , val tag: String
+                    , var count: Int = 0
+                    , var prices: String? = null): Test(){
     @Ignore private val repositoryConnection = RepositoryConnection.invoke()
     @Ignore var price: MutableLiveData<String> = MutableLiveData("")
     @Ignore var testPrice = price.value
@@ -31,19 +32,19 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                 price.postValue(when (country){
                 "US" ->{
                     val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
                     Log.d("tag", "price - $price. post - $postPrice")
                     "$$price"
                 }
                 "RU" -> {
                     val postPrice = repositoryConnection.collectDataForShareRussia(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
                     Log.d("tag", "price - $price. post - $postPrice")
                     "₽$price"
                 }
                 else->{
                     val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
-                    val price = postPrice?.data?.get(0)?.d?.get(1).toString()
+                    val price = postPrice?.data?.get(0)?.d?.get(1)!! * count
                     Log.d("tag", "tag - $tag. price - $price. post - $postPrice")
                     "$$price"
                 }

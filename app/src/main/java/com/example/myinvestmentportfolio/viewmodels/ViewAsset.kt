@@ -53,7 +53,7 @@ fun ViewAsset(country: String,
 
                 Spacer(modifier = Modifier.size(10.dp))
                 Column() {
-                    Text(text = description
+                    Text(text = replace(description)
                         , fontWeight = FontWeight.ExtraBold
                         , fontSize = 20.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
