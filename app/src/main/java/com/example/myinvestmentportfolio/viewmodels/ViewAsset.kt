@@ -1,8 +1,10 @@
 package com.example.myinvestmentportfolio.viewmodels
 
-import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -11,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,7 +20,7 @@ import coil.compose.rememberImagePainter
 import coil.decode.SvgDecoder
 import coil.transform.CircleCropTransformation
 
-
+@ExperimentalAnimationApi
 @Composable
 fun ViewAsset(country: String,
               tag: String,
@@ -27,9 +28,12 @@ fun ViewAsset(country: String,
               description: String) {
 
     val model: ViewAssetViewModel = viewModel()
+
     model.find(country=country,tag=tag,ticket=ticket,description=description)
     val asset by model.assetLiveData.observeAsState()
     val imageUrl = imgUrl(country)
+    val context = LocalContext.current
+
 
     Scaffold() {
         Column(modifier = Modifier.padding(8.dp)) {
@@ -68,11 +72,18 @@ fun ViewAsset(country: String,
                     }
                 }
             }
-            Text(text = "" )
-
+            Text(text = asset?.prices ?: ""
+                , fontWeight = FontWeight.ExtraBold
+                , fontSize = 20.sp, modifier = Modifier.padding(top=20.dp,bottom = 20.dp))
+            Button(onClick = { model.insert(asset!!) }) {
+                Text(text = "Добавить в портфель данную акцию")
+            }
         }
     }
 }
+
+
+
 
 fun imgUrl(country: String): String = when (country == null) {
     false -> {
@@ -88,14 +99,4 @@ fun replace(str: String): String{
     newStr = newStr.replace("<em>", "")
     newStr = newStr.replace("</em>", "")
     return newStr
-}
-@Composable
-@Preview(showBackground = true)
-fun preview(){
-    ViewAsset(
-        "",
-        "",
-        "",
-        ""
-    )
 }

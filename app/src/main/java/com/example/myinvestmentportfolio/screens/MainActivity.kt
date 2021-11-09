@@ -3,6 +3,7 @@ package com.example.myinvestmentportfolio.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -41,7 +42,7 @@ import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
 import com.example.myinvestmentportfolio.viewmodels.ViewAsset
 
-
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,7 +118,7 @@ fun MyScreenContent(navController: NavHostController
                     .align(Alignment.Start)
                     .padding(8.dp))
             Spacer(modifier = Modifier.size(20.dp))
-            ListOfShares(false,model)
+            ListOfShares(false, model, navController)
             Spacer(modifier = Modifier.size(20.dp))
 
         /*Text(text = "Favorites"
@@ -199,19 +200,19 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
 
 
 @Composable
-fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel()){
+fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel(), navController: NavHostController){
     val list by model.dataStock.observeAsState(initial = listOf())
     LazyRow{
         items(list){
             stock ->
-            CardPortfolio(isFavorites, stock)
+            CardPortfolio(isFavorites, stock,navController=navController)
         }
     }
 }
 
 
 @Composable
-fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewModel = viewModel()){
+fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewModel = viewModel(),navController: NavHostController){
     val context = LocalContext.current
     val description = stock.description
     val t = stock.logoId
@@ -222,7 +223,10 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
         .padding(8.dp)
-        .clickable {}
+        .clickable {
+            navController.navigate("viewAsset?country=${stock.country}"
+                    + "&tag=${stock.tag}&ticket=${stock.ticket}&description=${description}")
+        }
         , shape= RoundedCornerShape(20.dp)
         , elevation = 10.dp) {
         Box(){
@@ -255,7 +259,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
 
         Box(contentAlignment= Alignment.BottomStart){
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = "${price}"
+                Text(text = "$price"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)

@@ -26,6 +26,8 @@ interface PostJSONApi {
     @POST("/crypto/scan")
     suspend fun collectDataForShareCrypto(@Body dto: PostDTO): AnswerDTO
 
+
+
     companion object{
         private var postJSONApi: PostJSONApi? = null
         operator fun invoke(): PostJSONApi{

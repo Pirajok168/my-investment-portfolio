@@ -16,6 +16,9 @@ interface JSONSearchApi {
                               , @Query("lang",) lang: String
                               , @Query("type") type: String): List<QuoteDDTO>
 
+
+
+
     companion object{
         private var jsonPlaceHolderApi: JSONSearchApi? = null
         operator fun invoke(): JSONSearchApi{

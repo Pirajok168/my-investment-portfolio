@@ -1,11 +1,7 @@
 package com.example.myinvestmentportfolio.repositorys
 
 import com.example.myinvestmentportfolio.dto.*
-import com.example.myinvestmentportfolio.holders.IdJSONApi
-import com.example.myinvestmentportfolio.holders.JSONSearchApi
-import com.example.myinvestmentportfolio.holders.PostJSONApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import com.example.myinvestmentportfolio.holders.*
 import java.lang.Exception
 
 sealed class Language(val source: String){
@@ -16,6 +12,7 @@ sealed class Language(val source: String){
 class RepositoryConnection private constructor(private val jsonSearchApi: JSONSearchApi
                                                 ,private val postJSONApi: PostJSONApi
                                                 ,private val idPostJSONApi: IdJSONApi
+                                               ,
 ){
 
     suspend fun getFindQuotes(findText: String
@@ -131,11 +128,13 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         }
     }
 
+
     companion object{
         private var repository: RepositoryConnection? = null
         operator fun invoke(): RepositoryConnection{
             if (repository == null){
-                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi(), IdJSONApi())
+                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi(), IdJSONApi(),
+                )
             }
             return repository!!
         }
