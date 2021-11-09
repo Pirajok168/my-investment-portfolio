@@ -139,6 +139,7 @@ fun MyScreenContent(navController: NavHostController
 fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
 
     val price by model.price.observeAsState()
+
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
             modifier = Modifier.size(360.dp, 160.dp),
@@ -146,7 +147,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
         ) {
             Column(horizontalAlignment= Alignment.CenterHorizontally
                 , modifier = Modifier.padding(top=35.dp)) {
-                Text(text = price.toString()
+                Text(text = String.format("%.2f", price) + "₽"
                     , fontWeight = FontWeight.Bold
                     , color = Color.White, fontSize = 30.sp
                     , modifier = Modifier.padding(bottom = 10.dp))
@@ -224,11 +225,11 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     val context = LocalContext.current
     val description = stock.description
     val t = stock.logoId
-    Log.e("tags", t)
+    Log.e("tags", stock.toString())
     val str = "https://s3-symbol-logo.tradingview.com/$t--big.svg"
 
     val nowPrice by stock.nowPrice.observeAsState()
-
+    Log.e("tagssss", stock.toString())
     val currency = when(stock.country){
         "US" ->{
             "$"
@@ -291,7 +292,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)
-                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0) + "%" ,color = Color.Green)
+                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0, stock.count) + "%" ,color = Color.Green)
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "${stock.count} в портфели ",
                     fontSize= 14.sp, fontWeight = FontWeight.Medium)
@@ -310,8 +311,8 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     }
 }
 
-fun procent(first: Double, now: Double ): String{
-    val q = now - first
+fun procent(first: Double, now: Double, count: Int ): String{
+    val q = now * count - first * count
     val x = 100 * q / first
     return String.format("%.2f", x)
 }

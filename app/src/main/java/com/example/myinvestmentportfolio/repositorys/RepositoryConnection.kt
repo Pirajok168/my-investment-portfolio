@@ -1,5 +1,6 @@
 package com.example.myinvestmentportfolio.repositorys
 
+import androidx.lifecycle.MutableLiveData
 import com.example.myinvestmentportfolio.dto.*
 import com.example.myinvestmentportfolio.holders.*
 import java.lang.Exception
@@ -14,6 +15,12 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
                                                 ,private val idPostJSONApi: IdJSONApi
                                                ,
 ){
+    val allPrice: MutableLiveData<Double> = MutableLiveData(0.0)
+
+    fun setPrice(d: Double){
+        allPrice.postValue(d + allPrice.value!!)
+    }
+
 
     suspend fun getFindQuotes(findText: String
                               , lang: Language = Language.Russian

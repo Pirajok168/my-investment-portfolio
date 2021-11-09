@@ -94,6 +94,9 @@ class ViewAssetViewModel: ViewModel() {
             if( assetsData != null){
                 Log.d("tags", "запись найдена")
                 assetsData.count = assetsData.count + 1
+                val t = ((assetsData.firstPrices + asset.firstPrices) / assetsData.count )
+                assetsData.firstPrices = t
+
                 repositoryActivity.update(assetsData)
             }else{
                 Log.d("tags", "запись не найдена")
@@ -105,10 +108,5 @@ class ViewAssetViewModel: ViewModel() {
                 }
             }
         }
-
-
-
-
-
     }
 }

@@ -22,13 +22,11 @@ import kotlin.math.log
 
 class ActivityViewModel: ViewModel(), EventHandler<ChoiceEvent> {
     private val repository = RepositoryActivity.get()
+    private val repositoryConnection = RepositoryConnection()
     private val _realData = repository.getAll()
     val dataStock = _realData
-    var price: MutableLiveData<Double> = MutableLiveData(0.0)
+    var price = repositoryConnection.allPrice
 
-     fun setPrice(p: Double){
-        price.postValue(p)
-    }
 
 
     val result: String by lazy {

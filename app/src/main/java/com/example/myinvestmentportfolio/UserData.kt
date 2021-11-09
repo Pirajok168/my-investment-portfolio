@@ -32,21 +32,26 @@ data class UserData(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     val postPrice=repositoryConnection.collectDataForShareAmerica(tag)
                     val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "price - $price. post - $postPrice")
+                    repositoryConnection.setPrice(price!! * 70.85 * count)
                     price
                 }
                 "RU" -> {
                     val postPrice = repositoryConnection.collectDataForShareRussia(tag)
                     val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "price - $price. post - $postPrice")
+                    repositoryConnection.setPrice(price!! *  count)
                     price
                 }
                 else->{
                     val postPrice = repositoryConnection.collectDataForShareCrypto(tag)
                     val price = postPrice?.data?.get(0)?.d?.get(1)
                     Log.d("tag", "tag - $tag. price - $price. post - $postPrice")
+                    repositoryConnection.setPrice(price!! * 70.85 * count)
                     price
                 }
             })
+
+
 
         }
 
