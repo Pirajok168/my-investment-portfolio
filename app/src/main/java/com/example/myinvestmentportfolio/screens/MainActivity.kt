@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.ColorRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
@@ -230,6 +231,10 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
 
     val nowPrice by stock.nowPrice.observeAsState()
     Log.e("tagssss", stock.toString())
+    var color by remember {
+        mutableStateOf(false)
+    }
+
     val currency = when(stock.country){
         "US" ->{
             "$"
@@ -292,7 +297,7 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
                     , fontSize= 20.sp)
-                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0, stock.count) + "%" ,color = Color.Green)
+                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0, stock.count){ color = it} + "%" ,color = if(color) Color.Green else Color.Red)
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "${stock.count} в портфели ",
                     fontSize= 14.sp, fontWeight = FontWeight.Medium)
@@ -311,9 +316,14 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     }
 }
 
-fun procent(first: Double, now: Double, count: Int ): String{
+fun procent(first: Double, now: Double, count: Int, func: (color: Boolean)->Unit ): String{
     val q = now * count - first * count
     val x = 100 * q / first
+    if(x<0){
+        func(false)
+    }else{
+        func(true)
+    }
     return String.format("%.2f", x)
 }
 
