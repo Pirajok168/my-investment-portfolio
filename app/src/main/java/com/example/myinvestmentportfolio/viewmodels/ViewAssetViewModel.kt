@@ -6,12 +6,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myinvestmentportfolio.UserData
+import com.example.myinvestmentportfolio.UserDataHistory
 import com.example.myinvestmentportfolio.repositorys.RepositoryActivity
 import com.example.myinvestmentportfolio.repositorys.RepositoryConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 sealed class Condition(){
@@ -66,18 +69,27 @@ class ViewAssetViewModel: ViewModel() {
 
 
             val logoIdText = logoId.await()?.data?.get(0)?.d?.first().toString()
+            Log.d("tag", logoIdText)
             val asset = UserData(
                 ticket = replace(ticket),
                 description = replace(description),
                 logoId = logoIdText,
                 country = country,
                 tag = tag,
-                firstPrices = price.await()!!
+                firstPrices = price.await()!!,
             )
             _assetLiveData.postValue(asset)
         }
     }
 
+    fun delete(asset: UserData){
+        if(asset.count==0){
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repositoryActivity.delete(asset = asset)
+        }
+    }
 
     private fun replace(str: String): String{
         var newStr = str
@@ -87,6 +99,8 @@ class ViewAssetViewModel: ViewModel() {
     }
 
     fun insert(asset: UserData) {
+        val toDay = Date()
+        val formatter = SimpleDateFormat("EEE, MMM d, yyyy")
 
         viewModelScope.launch (Dispatchers.IO){
             val assetsData = repositoryActivity.getAsset(asset.ticket)
@@ -96,13 +110,30 @@ class ViewAssetViewModel: ViewModel() {
                 assetsData.count = assetsData.count + 1
                 val t = ((assetsData.firstPrices + asset.firstPrices) / assetsData.count )
                 assetsData.firstPrices = t
-
-                repositoryActivity.update(assetsData)
+                 repositoryActivity.update(assetsData)
+                repositoryActivity.insertElemHistory(UserDataHistory(
+                    ticket = assetsData.ticket,
+                    description = assetsData.description,
+                    logoId=assetsData.logoId,
+                    country=assetsData.country,
+                    tag=assetsData.tag,
+                    price=asset.firstPrices,
+                    date=formatter.format(toDay)
+                ))
             }else{
                 Log.d("tags", "запись не найдена")
                 try {
                     asset.count = 1
                     repositoryActivity.insert(asset)
+                    repositoryActivity.insertElemHistory(UserDataHistory(
+                        ticket = asset.ticket,
+                        description = asset.description,
+                        logoId=asset.logoId,
+                        country=asset.country,
+                        tag=asset.tag,
+                        price=asset.firstPrices,
+                        date=formatter.format(toDay)
+                    ))
                 }catch (e: Exception){
                     e.printStackTrace()
                 }

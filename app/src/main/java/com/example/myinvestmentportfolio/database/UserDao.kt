@@ -3,10 +3,12 @@ package com.example.myinvestmentportfolio.database
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.myinvestmentportfolio.UserData
+import com.example.myinvestmentportfolio.UserDataHistory
 
 
 @Dao
 interface UserDao {
+
 
     @Insert
     fun insertAll(vararg users: UserData)
@@ -26,4 +28,13 @@ interface UserDao {
     @Update
     fun update(share: UserData)
 
+}
+
+@Dao
+interface History{
+    @Query("SELECT * FROM userdatahistory")
+    fun getAllHistory(): LiveData<List<UserDataHistory>>
+
+    @Insert
+    fun insertElemHistory(share: UserDataHistory)
 }

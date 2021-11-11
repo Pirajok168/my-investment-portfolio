@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.ColorRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
@@ -43,10 +42,9 @@ import com.example.myinvestmentportfolio.R
 import com.example.myinvestmentportfolio.UserData
 import com.example.myinvestmentportfolio.ui.theme.MyInvestmentPortfolioTheme
 import com.example.myinvestmentportfolio.viewmodels.ActivityViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
-import okhttp3.Dispatcher
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.material.placeholder
 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -72,12 +70,17 @@ class MainActivity : ComponentActivity() {
                             , navArgument("tag") {type = NavType.StringType}
                             , navArgument("ticket") {type = NavType.StringType}
                             , navArgument("description") {type = NavType.StringType}
+
                         )){
                             backStackEntry ->
                         ViewAsset(backStackEntry.arguments?.getString("country")!!
                             , backStackEntry.arguments?.getString("tag")!!
                             , backStackEntry.arguments?.getString("ticket")!!
-                            , backStackEntry.arguments?.getString("description")!!)
+                            , backStackEntry.arguments?.getString("description")!!
+                           )
+                    }
+                    composable("ScreenContentHistory"){
+                        ScreenContentHistory()
                     }
                 }
             }
@@ -85,7 +88,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun MyScreenContent(navController: NavHostController
@@ -93,13 +96,6 @@ fun MyScreenContent(navController: NavHostController
 
     Scaffold(topBar={
         TopAppBar(title = {Text(text = "My Wallet")},
-            actions = {
-                IconButton(onClick = {
-                    navController.navigate("search")
-                }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                }
-            },
             backgroundColor= Color.White,
             elevation = 0.dp,
             navigationIcon= {
@@ -134,7 +130,7 @@ fun MyScreenContent(navController: NavHostController
     }
 }
 
-
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
@@ -168,7 +164,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                 Row(verticalAlignment=Alignment.CenterVertically
                     ,horizontalArrangement=Arrangement.SpaceAround) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { /*TODO*/ },
+                        IconButton(onClick = { navController.navigate("ScreenContentHistory") },
                             modifier = Modifier.size(40.dp)) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_history_24),
@@ -190,7 +186,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { navController.navigate("add") },
+                        IconButton(onClick = { navController.navigate("search") },
                             modifier = Modifier.size(40.dp)) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -206,7 +202,7 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
     }
 }
 
-
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel(), navController: NavHostController){
@@ -220,6 +216,7 @@ fun ListOfShares(isFavorites:Boolean, model: ActivityViewModel = viewModel(), na
 }
 
 
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewModel = viewModel(),navController: NavHostController){
@@ -250,14 +247,14 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
     Card(modifier = Modifier
         .size(280.dp, 190.dp)
         .padding(8.dp)
-        .clickable {
+        , shape= RoundedCornerShape(20.dp)
+        , elevation = 10.dp
+        , onClick = {
             navController.navigate(
                 "viewAsset?country=${stock.country}"
                         + "&tag=${stock.tag}&ticket=${stock.ticket}&description=${description}"
             )
-        }
-        , shape= RoundedCornerShape(20.dp)
-        , elevation = 10.dp) {
+        }) {
         Box(){
             Row(
                 modifier = Modifier.padding(8.dp),
@@ -296,27 +293,43 @@ fun CardPortfolio(isFavorites: Boolean, stock: UserData, model: ActivityViewMode
                 Text(text = "${nowPrice!! * stock.count}${currency}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
-                    , fontSize= 20.sp)
-                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0, stock.count){ color = it} + "%" ,color = if(color) Color.Green else Color.Red)
+                    , fontSize= 20.sp
+                    , modifier = Modifier
+                        .placeholder(visible = nowPrice == 0.0
+                            , highlight = PlaceholderHighlight.shimmer()))
+                Text(text = procent(stock.firstPrices, nowPrice ?: 0.0, currency, stock.count,){ color = it} + "%)"
+                    , color = if(color) Color.Green else Color.Red
+                    , modifier = Modifier
+                        .placeholder(visible = nowPrice == 0.0
+                            , highlight = PlaceholderHighlight.shimmer()))
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(text = "${stock.count} в портфели ",
-                    fontSize= 14.sp, fontWeight = FontWeight.Medium)
+                    fontSize= 14.sp
+                    , fontWeight = FontWeight.Medium
+                    , modifier = Modifier
+                        .placeholder(visible = nowPrice == 0.0
+                            , highlight = PlaceholderHighlight.shimmer()))
             }
         }
 
-        Box(contentAlignment= Alignment.BottomEnd, modifier=Modifier.padding(16.dp)){
+        Box(contentAlignment= Alignment.BottomEnd
+            , modifier=Modifier
+                .padding(16.dp)){
             Column {
                 Text(text = "${nowPrice}${currency}"
                     , fontWeight = FontWeight.Bold
                     , color = Color.Black
-                    , fontSize= 20.sp)
+                    , fontSize= 20.sp
+                    , modifier = Modifier
+                        .placeholder(visible = nowPrice == 0.0
+                        , highlight = PlaceholderHighlight.shimmer()))
 
             }
         }
     }
 }
 
-fun procent(first: Double, now: Double, count: Int, func: (color: Boolean)->Unit ): String{
+fun procent(first: Double, now: Double, currency: String, count: Int, func: (color: Boolean)->Unit ): String{
     val q = now * count - first * count
     val x = 100 * q / first
     if(x<0){
@@ -324,7 +337,7 @@ fun procent(first: Double, now: Double, count: Int, func: (color: Boolean)->Unit
     }else{
         func(true)
     }
-    return String.format("%.2f", x)
+    return String.format("%.2f", q) + "$currency(" + String.format("%.3f", x)
 }
 
 

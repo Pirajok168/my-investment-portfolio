@@ -13,6 +13,8 @@ import com.example.myinvestmentportfolio.repositorys.RepositoryConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 sealed class ChoiceSearch(val source: String){
     object Stock : ChoiceSearch("stock")
@@ -35,8 +37,6 @@ class SearchViewModel: ViewModel() {
     fun insert(share: QuoteDDTO) {
         viewModelScope.launch(Dispatchers.IO){
             val tag = share.tag
-            Log.e("tag", tag)
-            Log.e("tag", share.country ?: "crypto")
             val logoId = when (share.country){
                 "US" ->{
                     repositoryConnection.getLogoIdAmerica(tag)
@@ -48,14 +48,15 @@ class SearchViewModel: ViewModel() {
                     repositoryConnection.getLogoIdCrypto(tag)
                 }
             }
-            Log.e("tag", logoId.toString())
             val logoIdText = logoId?.data?.get(0)?.d?.first().toString()
+
+
             repositoryActivity.insert(UserData(
                 ticket = replace(share.symbol),
                 description = replace(share.description),
                 logoId = logoIdText,
                 country = share.country,
-                tag = tag
+                tag = tag,
             ))
         }
     }
@@ -71,7 +72,6 @@ class SearchViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val type = _choiceSearchMutableLiveData.value?.source!!
             var list =  repositoryConnection.getFindQuotes(findText, lang, type)
-            //Log.d("tag", list.size.toString())
 
             if(type=="stock"){
                 list = list.filter {
