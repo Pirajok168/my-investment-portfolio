@@ -1,5 +1,7 @@
 package com.example.myinvestmentportfolio.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -28,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -107,6 +110,7 @@ fun MyScreenContent(navController: NavHostController
         )
     }) {
         val state = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,8 +138,13 @@ fun MyScreenContent(navController: NavHostController
 @ExperimentalAnimationApi
 @Composable
 fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
-
+    val context = LocalContext.current
     val price by model.price.observeAsState()
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "Я использую это приложение для контроля своих ивенстиций")
+        type = "text/plain"
+    }
 
     Box(modifier = Modifier.size(360.dp, 190.dp)) {
         Card(backgroundColor = Color.Blue,
@@ -175,7 +184,9 @@ fun PersonalAccount(navController: NavHostController, model: ActivityViewModel){
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { /*TODO*/ },
+                        IconButton(onClick = {
+                            startActivity(context, sendIntent, null)
+                        },
                             modifier = Modifier.size(40.dp)) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_share_24),

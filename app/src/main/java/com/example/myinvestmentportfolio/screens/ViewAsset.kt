@@ -19,6 +19,11 @@ import coil.compose.rememberImagePainter
 import coil.decode.SvgDecoder
 import coil.transform.CircleCropTransformation
 import com.example.myinvestmentportfolio.viewmodels.ViewAssetViewModel
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.placeholder
 
 @ExperimentalAnimationApi
 @Composable
@@ -27,7 +32,6 @@ fun ViewAsset(
     tag: String,
     ticket: String,
     description: String,
-
 ) {
 
     val model: ViewAssetViewModel = viewModel()
@@ -119,12 +123,15 @@ fun ViewAsset(
             }
             Text(text = asset?.firstPrices.toString()
                 , fontWeight = FontWeight.ExtraBold
-                , fontSize = 20.sp, modifier = Modifier.padding(top=20.dp,bottom = 20.dp))
+                , fontSize = 20.sp
+                , modifier = Modifier
+                    .padding(top=20.dp,bottom = 20.dp)
+                    .placeholder(visible = asset?.firstPrices==null,highlight = PlaceholderHighlight.shimmer()))
 
 
             Button(onClick = {
                 openDialog.value = true
-            },) {
+            },enabled = asset?.firstPrices!=null) {
                 Text(text = "Добавить в портфель данную акцию")
             }
             Spacer(modifier = Modifier.size(10.dp))
