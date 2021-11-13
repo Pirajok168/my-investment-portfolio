@@ -30,6 +30,17 @@ class ViewAssetViewModel: ViewModel() {
     private val _assetLiveData: MutableLiveData<UserData> = MutableLiveData()
     val assetLiveData = _assetLiveData
 
+
+
+
+    fun test(){
+        viewModelScope.launch (Dispatchers.IO){
+            val list = repositoryConnection.getNews()
+            Log.e("news", list.toString() )
+        }
+
+    }
+
     fun find(tag: String, country: String, ticket: String, description:String){
         viewModelScope.launch (Dispatchers.IO) {
             val logoId = async {

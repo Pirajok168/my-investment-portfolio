@@ -13,13 +13,20 @@ sealed class Language(val source: String){
 class RepositoryConnection private constructor(private val jsonSearchApi: JSONSearchApi
                                                 ,private val postJSONApi: PostJSONApi
                                                 ,private val idPostJSONApi: IdJSONApi
-                                               ,
+                                                ,private val retrofitSource: RetrofitSource
+
 ){
     val allPrice: MutableLiveData<Double> = MutableLiveData(0.0)
 
     fun setPrice(d: Double){
         allPrice.postValue(d + allPrice.value!!)
     }
+
+    suspend fun getNews(): List<newsDtoItem> {
+        return retrofitSource.getNews()
+    }
+
+
 
 
     suspend fun getFindQuotes(findText: String
@@ -140,8 +147,7 @@ class RepositoryConnection private constructor(private val jsonSearchApi: JSONSe
         private var repository: RepositoryConnection? = null
         operator fun invoke(): RepositoryConnection{
             if (repository == null){
-                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi(), IdJSONApi(),
-                )
+                repository = RepositoryConnection(JSONSearchApi(),PostJSONApi(), IdJSONApi(),RetrofitSource())
             }
             return repository!!
         }
